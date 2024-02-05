@@ -68,7 +68,7 @@ h3 {
     height: 304px;
     width: 304px;
     color: rgba(250, 235, 215, 0.635);
-    background-color: rgba(89, 89, 89, 0.776);
+    background-color: rgba(89, 89, 89, 0.631);
     position: absolute;
     margin-top: 30px;
     font-size: 200px;
@@ -78,9 +78,29 @@ h3 {
     border-radius: 10px;
 }
 
-.mask i:hover {
+.end-game i:hover {
     color: rgb(255, 255, 255);
     cursor: pointer;
+}
+
+.start-game {
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 50px;
+    gap: 30px;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.themes {
+    background-color: rgb(37, 37, 37);
+    border-radius: 10px;
+}
+
+.themes:hover {
+    cursor: pointer;
+    color: rgb(255, 255, 255);
 }
 
 .hidden {
