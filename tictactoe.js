@@ -137,7 +137,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const currentTile = document.getElementById(tileID);
         currentTile.appendChild(icon);
         playerList.push(tileID);
-        resolveGame();
+        if (gameTurn >= 5) {
+            resolveGame();
+        }
     }
 
     function resolveGame() {
