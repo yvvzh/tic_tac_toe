@@ -1,0 +1,88 @@
+@import url("https://fonts.googleapis.com/css2?family=Workbench&display=swap");
+
+body {
+    font-family: "Workbench", sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+h3 {
+    font-size: 40px;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    background-color: transparent;
+    border-radius: 10px;
+    gap: 2px;
+}
+
+.tiles {
+    color: antiquewhite;
+    height: 100px;
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    background-color: #313131;
+    border-radius: 5px;
+}
+
+.tiles:hover {
+    cursor: pointer;
+    background-color: rgb(88, 88, 88);
+}
+
+.filled-tiles:hover {
+    cursor: default;
+    background-color: #313131;
+}
+
+.dialog-box {
+    background: #313131;
+    height: 60px;
+    width: 300px;
+    border-radius: 10px;
+    color: antiquewhite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+#dialog {
+    font-style: italic;
+    font-size: 16px;
+}
+
+.blur-mask {
+    filter: blur(1.5px);
+}
+
+.mask {
+    height: 304px;
+    width: 304px;
+    color: rgba(250, 235, 215, 0.635);
+    background-color: rgba(89, 89, 89, 0.776);
+    position: absolute;
+    margin-top: 30px;
+    font-size: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+}
+
+.mask i:hover {
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
