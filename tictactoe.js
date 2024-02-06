@@ -1,13 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const slctBtn = document.querySelector(".slider");
     const tiles = document.getElementsByClassName("tiles");
     const tilesCollection = [...tiles];
     const themeDisplay = document.querySelector(".start-game");
 
     const themesCross = ["bxl-visual-studio", "bxl-bing", "bx-x-circle", "bxs-sun"];
     const themesCircle = ["bxl-github", "bxl-opera", "bx-check-circle", "bxs-moon"];
-
-    let iconCross;
-    let iconCircle;
 
     const winPatterns = [
         ["a1", "a2", "a3"],
@@ -20,17 +18,25 @@ document.addEventListener("DOMContentLoaded", () => {
         ["c1", "b2", "a3"],
     ];
 
+    let iconCross;
+    let iconCircle;
     let gameTurn = 0;
     let currentPlayer = "X";
     let filledTiles = [];
     let playerXtiles = [];
     let playerOtiles = [];
     let gameStatus = 0;
+    let playerMode = 0;
+    let possibilities = ["a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3"];
 
-    handleDialog("theme");
+    handleDialog("start");
     displayThemes();
 
     function displayThemes() {
+        // active l'écoute du switch
+        slctBtn.addEventListener("click", () => {
+            playerMode = playerMode === 0 ? 1 : 0;
+        });
         //afficher les thèmes
         for (let i = 0; i < themesCross.length; i++) {
             const div = document.createElement("div");
@@ -43,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
             div.appendChild(cross);
             div.appendChild(circle);
             div.addEventListener("click", () => {
-                handleTheme(themesCross[i], themesCircle[i]);
+                handleSettings(themesCross[i], themesCircle[i]);
             });
             themeDisplay.appendChild(div);
         }
@@ -64,12 +70,12 @@ document.addEventListener("DOMContentLoaded", () => {
         div.appendChild(cross);
         div.appendChild(circle);
         div.addEventListener("click", () => {
-            handleTheme(randomThemeCross, randomThemeCircle);
+            handleSettings(randomThemeCross, randomThemeCircle);
         });
         themeDisplay.appendChild(div);
     }
 
-    function handleTheme(cross, circle) {
+    function handleSettings(cross, circle) {
         iconCross = cross;
         iconCircle = circle;
         startGame();
@@ -78,14 +84,20 @@ document.addEventListener("DOMContentLoaded", () => {
     function handleDialog(status) {
         const dialog = document.getElementById("dialog");
         switch (status) {
-            case "theme":
-                dialog.textContent = "Choisissez votre thème.";
+            case "start":
+                dialog.textContent = "Choisissez votre adversaire et un thème.";
                 break;
             case "playerXturn":
                 dialog.textContent = "Tour du joueur X.";
                 break;
             case "playerOturn":
                 dialog.textContent = "Tour du joueur O.";
+                break;
+            case "computerTurn":
+                dialog.textContent = "Tour de l'ordinateur.";
+                break;
+            case "computerWins":
+                dialog.textContent = "L'ordinateur gagne la partie!";
                 break;
             case "already filled":
                 dialog.textContent = "La case est déjà prise.";
@@ -102,7 +114,104 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function handleClick(tileID) {
+    function handleClickCPU(tileID) {
+        if (gameStatus === 0) {
+            if (filledTiles.includes(tileID)) {
+                handleDialog("already filled");
+            } else {
+                filledTiles.push(tileID);
+                const tile = document.getElementById(tileID);
+                tile.classList.add("filled-tiles");
+                resolveTurn(tileID, iconCross, playerXtiles);
+                if (gameStatus === 0) {
+                    currentPlayer = "O";
+                    handleDialog("computerTurn");
+                    computerLogic();
+                }
+            }
+        }
+    }
+
+    function computerLogic() {
+        // Déclare la variable choix de l'ordinateur
+        let computerMove;
+
+        // Analyse des choix disponibles
+        let availableMoves = possibilities.filter((move) => !filledTiles.includes(move));
+
+        // Règle 1: Vérifie si l'ordi peut gagner
+        for (let move of availableMoves) {
+            playerOtiles.push(move); // Simule le placement
+            if (checkWin(playerOtiles)) {
+                playerOtiles.pop(); // Retire le placement simulé
+                computerMove = move;
+                break;
+            }
+            playerOtiles.pop(); // Retire le placement simulé
+        }
+
+        // Règle 2: Vérifie si l'adversaire peut gagner et le bloque
+        if (!computerMove) {
+            for (let move of availableMoves) {
+                playerXtiles.push(move); // Simule le placement de l'adversaire
+                if (checkWin(playerXtiles)) {
+                    playerXtiles.pop(); // Retire le placement de l'adversaire
+                    computerMove = move;
+                    break;
+                }
+                playerXtiles.pop(); // Retire le placement de l'adversaire
+            }
+        }
+
+        // Règle 3: Vérifie si l'ordi peut occuper la case centrale
+        if (!computerMove && availableMoves.includes("b2")) {
+            computerMove = "b2";
+        }
+
+        // Règle 4: Joue par aléatoirement par défaut
+        if (!computerMove) {
+            let randomIndex = Math.floor(Math.random() * availableMoves.length);
+            computerMove = availableMoves[randomIndex];
+        }
+        setTimeout(() => {
+            // Simule un temps de réflexion
+            computerTurn(computerMove);
+        }, 500);
+    }
+
+    function checkWin(playerTiles) {
+        for (let pattern of winPatterns) {
+            let count = 0;
+            for (let tile of pattern) {
+                if (playerTiles.includes(tile)) {
+                    count++;
+                }
+            }
+            if (count === 3) {
+                return true; // Player has won
+            }
+        }
+        return false; // Player has not won
+    }
+
+    function computerTurn(computerMove) {
+        if (gameStatus === 0) {
+            if (filledTiles.includes(computerMove)) {
+                alert("computer move generation is wrong");
+            } else {
+                filledTiles.push(computerMove);
+                const tile = document.getElementById(computerMove);
+                tile.classList.add("filled-tiles");
+                resolveTurn(computerMove, iconCircle, playerOtiles);
+                if (gameStatus === 0) {
+                    currentPlayer = "X";
+                    handleDialog("playerXturn");
+                }
+            }
+        }
+    }
+
+    function handleClick2P(tileID) {
         if (gameStatus === 0) {
             if (filledTiles.includes(tileID)) {
                 handleDialog("already filled");
@@ -158,9 +267,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     gameStatus++;
                     endGame();
                 } else if (O === 3) {
-                    handleDialog("playerOwins");
-                    gameStatus++;
-                    endGame();
+                    switch (playerMode) {
+                        case 0:
+                            handleDialog("computerWins");
+                            gameStatus++;
+                            endGame();
+                            break;
+                        case 1:
+                            handleDialog("playerOwins");
+                            gameStatus++;
+                            endGame();
+                            break;
+                    }
                 }
             });
         });
@@ -178,13 +296,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         themeDisplay.classList.add("hidden");
 
-        tilesCollection.forEach((tile) => {
-            tile.addEventListener("click", () => {
-                const tileID = tile.id;
-                handleClick(tileID);
-            });
-        });
-
+        switch (playerMode) {
+            case 0:
+                tilesCollection.forEach((tile) => {
+                    tile.addEventListener("click", () => {
+                        if (gameTurn % 2 === 0) {
+                            const tileID = tile.id;
+                            handleClickCPU(tileID);
+                        }
+                    });
+                });
+                break;
+            case 1:
+                tilesCollection.forEach((tile) => {
+                    tile.addEventListener("click", () => {
+                        const tileID = tile.id;
+                        handleClick2P(tileID);
+                    });
+                });
+                break;
+        }
         handleDialog("playerXturn");
     }
 
